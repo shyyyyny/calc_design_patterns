@@ -1,29 +1,19 @@
-from app.commands import CommandHandler
-from app.commands.exit import ExitCommand
-from app.commands.goodbye import GoodbyeCommand
-from app.commands.greet import GreetCommand
-from app.commands.operations import SayHello, SayName, NameSplit
+from abc import ABC, abstractmethod
 
-class App:
-    def __init__(self): # Constructor
-        self.command_handler = CommandHandler()
-        # Register commands here
+class Command(ABC):
+    @abstractmethod
+    def execute(self, *args, **kwargs):pass
 
+class CommandHandler:
+    def __init__(self):
+        self.commands = {}
 
-    def start(self):
-        self.command_handler.register_command("greet", GreetCommand())
-        self.command_handler.register_command("goodbye", GoodbyeCommand())
-        self.command_handler.register_command("exit", ExitCommand())
+    def register_command(self, command_name: str, command: Command):
+        self.commands[command_name] = command
 
-        #creating more commands
-        self.command_handler.register_command("sayHello", SayHello())
-        self.command_handler.register_command("sayName", SayName())
-        self.command_handler.register_command("splitName", NameSplit())
-        
-
-        print("Type 'exit' to exit.")
-        while True:  #REPL Read, Evaluate, Process, Loop
-            self.command_handler.execute_command(input(">>> ").strip())
-
-
-
+    def execute_command(self, command_name: str, *args, **kwargs):
+        try:
+            # Passing additional arguments to the command's execute method
+            self.commands[command_name].execute(*args, **kwargs)
+        except KeyError:
+            print(f"No such command: {command_name}")
